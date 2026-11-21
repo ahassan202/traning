@@ -1,0 +1,43 @@
+{
+  "name": "it-infra-tracker",
+  "productName": "IT Infra Tracker",
+  "version": "1.0.0",
+  "description": "IT Infrastructure Tasks & Projects tracker with dashboard",
+  "main": "main.js",
+  "author": "Ahmed Hassan",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "node scripts/build-win.js"
+  },
+  "dependencies": {
+    "chart.js": "4.4.6"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8",
+    "pe-library": "^1.0.1",
+    "png-to-ico": "^2.1.8",
+    "resedit": "^2.0.3"
+  },
+  "build": {
+    "appId": "com.itinfra.tracker",
+    "productName": "IT Infra Tracker",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "node_modules/chart.js/dist/chart.umd.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ],
+      "icon": "build/icon.png"
+    }
+  }
+}

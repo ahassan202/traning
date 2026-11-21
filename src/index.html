@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <title>IT Infra Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">IT</div>
+      <div>
+        <div class="brand-name">Infra Tracker</div>
+        <div class="brand-sub">Tasks &amp; Projects</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="ico">▦</span> Dashboard</button>
+      <button class="nav-item" data-view="projects"><span class="ico">◧</span> Projects</button>
+      <button class="nav-item" data-view="tasks"><span class="ico">☑</span> Tasks</button>
+      <button class="nav-item" data-view="settings"><span class="ico">⚙</span> Settings</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button id="themeToggle" class="btn ghost small">◐ Toggle theme</button>
+      <div class="version">v1.0.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="viewTitle">Dashboard</h1>
+        <div id="viewSub" class="muted">Overview of infrastructure work</div>
+      </div>
+      <div class="topbar-actions">
+        <input id="globalSearch" class="input search" type="search" placeholder="Search tasks & projects…">
+        <button class="btn" id="btnNewProject">+ Project</button>
+        <button class="btn primary" id="btnNewTask">+ Task</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view active">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid g-3">
+        <div class="card">
+          <div class="card-h"><h3>Tasks by Status</h3></div>
+          <div class="chart-box"><canvas id="chStatus"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Open Tasks by Category</h3></div>
+          <div class="chart-box"><canvas id="chCategory"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Open Tasks by Priority</h3></div>
+          <div class="chart-box"><canvas id="chPriority"></canvas></div>
+        </div>
+      </div>
+      <div class="grid g-2">
+        <div class="card">
+          <div class="card-h"><h3>Project Progress</h3><span class="muted small" id="projCount"></span></div>
+          <div id="projProgress" class="prog-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Upcoming &amp; Overdue</h3><span class="muted small">next 14 days</span></div>
+          <div id="upcoming" class="upcoming"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Completed Tasks – Last 8 Weeks</h3></div>
+        <div class="chart-box wide"><canvas id="chTrend"></canvas></div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="view-projects" class="view">
+      <div class="toolbar">
+        <select id="fProjStatus" class="input"><option value="">All statuses</option></select>
+        <select id="fProjCat" class="input"><option value="">All categories</option></select>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportProjects">Export CSV</button>
+      </div>
+      <div id="projectGrid" class="project-grid"></div>
+    </section>
+
+    <!-- TASKS -->
+    <section id="view-tasks" class="view">
+      <div class="toolbar">
+        <div class="seg">
+          <button class="seg-btn active" data-mode="board">Board</button>
+          <button class="seg-btn" data-mode="list">List</button>
+        </div>
+        <select id="fTaskProject" class="input"><option value="">All projects</option></select>
+        <select id="fTaskCat" class="input"><option value="">All categories</option></select>
+        <select id="fTaskPrio" class="input"><option value="">All priorities</option></select>
+        <label class="chk"><input type="checkbox" id="fOverdue"> Overdue only</label>
+        <div class="spacer"></div>
+        <button class="btn" id="btnExportTasks">Export CSV</button>
+      </div>
+      <div id="taskBoard" class="board"></div>
+      <div id="taskList" class="card hidden"><table class="table" id="taskTable"></table></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings" class="view">
+      <div class="grid g-2">
+        <div class="card">
+          <div class="card-h"><h3>Data &amp; Backup</h3></div>
+          <p class="muted">Data is stored locally on this PC. A daily automatic backup is kept (last 14 days).</p>
+          <div class="kv"><span>Data file</span><code id="dataPath">–</code></div>
+          <div class="btn-row">
+            <button class="btn" id="btnOpenFolder">Open data folder</button>
+            <button class="btn primary" id="btnBackup">Export backup (JSON)</button>
+            <button class="btn" id="btnRestore">Restore from backup</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Team Members</h3></div>
+          <p class="muted">Used for task assignment and project owners.</p>
+          <div id="peopleList" class="chips"></div>
+          <div class="btn-row">
+            <input id="newPerson" class="input" placeholder="Add name…">
+            <button class="btn" id="btnAddPerson">Add</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Categories</h3></div>
+          <p class="muted">Infrastructure domains for tasks and projects.</p>
+          <div id="catList" class="chips"></div>
+          <div class="btn-row">
+            <input id="newCat" class="input" placeholder="Add category…">
+            <button class="btn" id="btnAddCat">Add</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Danger Zone</h3></div>
+          <p class="muted">Remove all data and start fresh. Export a backup first.</p>
+          <div class="btn-row">
+            <button class="btn" id="btnLoadSample">Load sample data</button>
+            <button class="btn danger" id="btnReset">Clear all data</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-h">
+        <h2 id="modalTitle">Edit</h2>
+        <button class="icon-btn" id="modalClose" aria-label="Close">✕</button>
+      </div>
+      <form id="modalForm" class="form"></form>
+      <div class="modal-f">
+        <button class="btn danger ghost hidden" id="modalDelete">Delete</button>
+        <div class="spacer"></div>
+        <button class="btn" id="modalCancel">Cancel</button>
+        <button class="btn primary" id="modalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+  <script src="store.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
